@@ -1,12 +1,16 @@
 package com.mybank.tui;
 
+import com.mybank.data.DataSource;
 import com.mybank.domain.Bank;
 import com.mybank.domain.CheckingAccount;
 import com.mybank.domain.Customer;
 import com.mybank.domain.SavingsAccount;
+import com.mybank.reporting.CustomerReport;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.*;
@@ -39,7 +43,7 @@ public class CLIdemo {
     private String[] commandsList;
 
     public void init() {
-        commandsList = new String[]{"help", "customers", "customer", "exit"};
+        commandsList = new String[]{"help", "customers", "customer", "exit", "report"};
     }
 
     public void run() {
@@ -105,7 +109,11 @@ public class CLIdemo {
             } else if ("exit".equals(line)) {
                 System.out.println("Exiting application");
                 return;
-            } else {
+            } else if("report".equals(line)) {
+                CustomerReport customerReport = new CustomerReport();
+                customerReport.generateReport();
+            }
+            else {
                 System.out
                         .println(ANSI_RED + "Invalid command, For assistance press TAB or type \"help\" then hit ENTER." + ANSI_RESET);
             }
@@ -124,6 +132,7 @@ public class CLIdemo {
         System.out.println("help\t\t\t- Show help");
         System.out.println("customer\t\t- Show list of customers");
         System.out.println("customer \'index\'\t- Show customer details");
+        System.out.println("report\t\t\t- Generate customers report");
         System.out.println("exit\t\t\t- Exit the app");
 
     }
@@ -141,13 +150,11 @@ public class CLIdemo {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        Locale.setDefault(new Locale("en", "us"));
 
-        Bank.addCustomer("John", "Doe");
-        Bank.addCustomer("Fox", "Mulder");
-        Bank.getCustomer(0).addAccount(new CheckingAccount(2000));
-        Bank.getCustomer(1).addAccount(new SavingsAccount(1000, 3));
-
+        new DataSource("./data/test.dat").loadData();
+        
         CLIdemo shell = new CLIdemo();
         shell.init();
         shell.run();
